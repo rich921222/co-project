@@ -1,3 +1,4 @@
 .git*
 __pycache__
 /processing_image
+RT.csv
