@@ -268,9 +268,8 @@ def embeding(image,n):
     I=io.imread(path)
     path2 = "noise/"+n+".png"
     I2=io.imread(path2)
-    if n == 'grass':
-        I2 = transform.resize(I2, (I.shape[0]/2, I.shape[1]/2, 4))
     e = noise(I,I2)
 
     io.imshow(e)
+    io.show()
     io.imsave('embeding_noise/'+image+'.png',e) 
