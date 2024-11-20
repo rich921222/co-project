@@ -184,45 +184,70 @@ def AVGI(Graph):
     io.show()
     io.imsave('processing_image/'+Graph+'.png',Stego)
 
-def Authorize(Graph):
+def Authorize(Graph, Name=None):
+    try:
+        df = pd.read_csv('RT.csv')
+        RT_table = df.to_numpy()
+    except:
+        RT = Sudoku(256)
+        df = pd.DataFrame(RT)
+        df.to_csv('RT.csv', index=False, header=True)
+        df = pd.read_csv('RT.csv')
+        RT_table = df.to_numpy()
     path = "embeding_noise/"+Graph+".png"
 
     I=io.imread(path)
     Stego = I.copy()
-    RT = APPM_RT256()
-    print(Stego.shape[2])
     Flag = False
-
+    detected_error = 0
+    diff_pixels = 0
     for i in range(Stego.shape[0]):
+        # if(Flag):
+        #     break
         for j in range(Stego.shape[1]):
             Gray = I[i,j,0]*0.299+I[i,j,1]*0.587+I[i,j,2]*0.114
             G_round = round(Gray)
             ac = G_round
             flag = False
-            if(ac > RT[Stego[i,j,0],Stego[i,j,2]]):
-                ac = abs(int((RT[Stego[i,j,0],Stego[i,j,2]] - 0.299*Stego[i,j,0] - 0.114*Stego[i,j,2])/0.587))
+            if(ac > RT_table[Stego[i,j,0],Stego[i,j,2]]):
+                ac = abs(int((RT_table[Stego[i,j,0],Stego[i,j,2]] - 0.299*Stego[i,j,0] - 0.114*Stego[i,j,2])/0.587))
                 if(Stego[i,j,1] != ac):
                     Stego[i,j,0] = 255
                     Stego[i,j,1] = 255
                     Stego[i,j,2] = 255
                     flag = True
-                    print(f"This picture is tampered. i: {i} ,j: {j} ,Stego:{Stego[i,j]} ,Gray:{Gray}, RT:{RT[Stego[i,j,0],Stego[i,j,2]]}")
-                    Flag = True
-            elif(ac < RT[Stego[i,j,0],Stego[i,j,2]]):
-                ac = 510 - abs(int((RT[Stego[i,j,0],Stego[i,j,2]] - 0.299*Stego[i,j,0] - 0.114*Stego[i,j,2])/0.587))
+                    detected_error += 1
+                    # print(f"This picture is tampered. i: {i} ,j: {j} ,Stego:{Stego[i,j]} ,Gray:{Gray}, RT_table:{RT_table[Stego[i,j,0],Stego[i,j,2]]}")
+                    # Flag = True
+                    # break 
+            elif(ac < RT_table[Stego[i,j,0],Stego[i,j,2]]):
+                ac = 510 - abs(int((RT_table[Stego[i,j,0],Stego[i,j,2]] - 0.299*Stego[i,j,0] - 0.114*Stego[i,j,2])/0.587))
                 if(Stego[i,j,1] != ac):                
                     Stego[i,j,0] = 255
                     Stego[i,j,1] = 255
                     Stego[i,j,2] = 255
                     flag = True
-                    print(f"This picture is tampered. i: {i} ,j: {j} ,Stego:{Stego[i,j]} ,Gray:{Gray}, RT:{RT[Stego[i,j,0],Stego[i,j,2]]}")
-                    Flag = True
+                    detected_error += 1
+                    # print(f"This picture is tampered. i: {i} ,j: {j} ,Stego:{Stego[i,j]} ,Gray:{Gray}, RT_table:{RT_table[Stego[i,j,0],Stego[i,j,2]]}")
+                    # Flag = True
+                    # break  
             if(not flag):
                 Stego[i,j,0] = 0
                 Stego[i,j,1] = 0
                 Stego[i,j,2] = 0
+                
     io.imshow(Stego, vmin=0, vmax=255)
-     
-    plt.show()  # 不调用 tight_layout
-    if(not Flag):
-        print("This picture is not tampered.")
+    io.show()  
+    image1 = io.imread('embeding_noise/'+Graph+'.png')
+    image2 = io.imread('processing_image/'+Graph+'.png')
+    
+    for i in range(image1.shape[0]):
+        for j in range(image1.shape[1]):
+            if(image1[i,j] != image2[i,j]).any():
+               diff_pixels+=1 
+    print(Graph)
+    accuracy = detected_error/diff_pixels
+    print(f"Detected error: {detected_error}, Actual error: {diff_pixels}, Accuracy: {accuracy}")
+    if(Name != None): 
+        with open("processing_data/"+Name+".txt","a") as file:
+            file.write(f"PSNR: {accuracy}\n")    
