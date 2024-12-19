@@ -184,7 +184,7 @@ def AVGI(Graph):
     io.show()
     io.imsave('processing_image/'+Graph+'.png',Stego)
 
-def Authorize(Graph, Name=None):
+def Authorize(Graph):
     try:
         df = pd.read_csv('RT.csv')
         RT_table = df.to_numpy()
@@ -248,9 +248,9 @@ def Authorize(Graph, Name=None):
     print(Graph)
     accuracy = detected_error/diff_pixels
     print(f"Detected error: {detected_error}, Actual error: {diff_pixels}, Accuracy: {accuracy}")
-    if(Name != None): 
-        with open("processing_data/"+Name+".txt","a") as file:
-            file.write(f"PSNR: {accuracy}\n")    
+
+    with open("processing_data/"+Graph+".txt","a") as file:
+        file.write(f"accuracy: {accuracy}\n")    
 
 def embeding(image,n):
     def noise(I,Noise):
