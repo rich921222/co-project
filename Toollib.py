@@ -238,7 +238,7 @@ def Authorize(Graph, Name=None):
                 
     io.imshow(Stego, vmin=0, vmax=255)
     io.show()  
-    image1 = io.imread('embeding_noise/'+Graph+'.png')
+    image1 = io.imread("embeding_noise/"+Graph+".png")
     image2 = io.imread('processing_image/'+Graph+'.png')
     
     for i in range(image1.shape[0]):
