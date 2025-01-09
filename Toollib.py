@@ -271,7 +271,7 @@ def embeding(image,n):
                 if(Noise[i, j,3]==0):
                     continue
                 for k in range(3):
-                    I[i+255,j+255,k] = Noise[i,j,k]
+                    I[i+100,j+100,k] = Noise[i,j,k]
 
         return I
     path = "processing_image/"+image+".png"
