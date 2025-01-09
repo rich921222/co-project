@@ -114,9 +114,13 @@ def remedy(r,g,b,ac):
 
 import pandas as pd
 def AVGI(Graph):
+
+    ## 引入圖片
     path = 'image/'+Graph
     I=io.imread(path +r'.tiff')
     Stego = I.copy()
+
+    ## 引入參照表(APPM)
     df = pd.read_csv('RT.csv')
     RT_table = df.to_numpy()
     NearestP = NearestPoint()
@@ -129,16 +133,16 @@ def AVGI(Graph):
 
     for i in range(Stego.shape[0]):
         for j in range(Stego.shape[1]):
+            
+            ## 計算灰階值並將其設為驗證碼(ac)
             Gray = I[i,j,0]*0.299+I[i,j,1]*0.587+I[i,j,2]*0.114
             G_round = round(Gray)
             ac = G_round    
             
+            ## 由參照表中依照順序(最近優先)尋找數值等於ac的點，並回傳其XY軸座標 -> k
             k = Find(RT_table,NearestP,Stego[i,j,0],Stego[i,j,2],ac)          
 
-            # print(f"i: {i} j: {j} k:{k}")
-            # print(Stego[i,j,2],Stego[i,j+1,2],k)
-            # print(f"i: {i}, j: {j}, I:({I[i,j,0]},{I[i,j,2]}), k:{k}")
-
+            ## X座標放入紅色通道，Y座標放入藍色通道，並判斷綠色通道要變化成多少彌補灰階值 -> g_bar
             Stego[i,j,0] = k[0]
             Stego[i,j,2] = k[1]  
             g_bar = int((Gray - 0.299*k[0] - 0.114*k[1])/0.587)
@@ -147,6 +151,7 @@ def AVGI(Graph):
             elif(round(0.299*k[0]+0.587*g_bar+0.114*k[1]) > round(Gray)):
                 g_bar -= 1
 
+            ## 若g_bar超過臨界值則進行折返
             if(g_bar > 255):
                 p += 1
                 g_bar = 510 - abs(int((G_round - 0.299*k[0] - 0.114*k[1])/0.587))
@@ -156,8 +161,7 @@ def AVGI(Graph):
                 
             Stego[i,j,1] = g_bar
 
-            # print(f"I:{I[i,j]}, S:{Stego[i,j]}, g_bar:{(Gray - 0.299*k[0] - 0.114*k[1])/0.587}, k:{k}")
-
+            ## 計算三個通道的變化平方和
             X = 0
             delta = int(Stego[i,j,2]) - int(I[i,j,2])
             X += delta**2
@@ -170,7 +174,8 @@ def AVGI(Graph):
             MSE += delta ** 2    
             if(X > 128):
                 N += 1                                    
-
+    
+    ## 計算PSNR
     MSE /= (Stego.shape[0]*Stego.shape[1]*3)
     PSNR = 10 * np.log10(65025/MSE)
     print(f"PSNR:{PSNR} , F:{p} , X:{N}")
@@ -179,12 +184,12 @@ def AVGI(Graph):
         file.write(f"PSNR: {PSNR}\n")
         file.write(f"outliers: {p}")
 
-
     io.imshow(Stego)
     io.show()
     io.imsave('processing_image/'+Graph+'.png',Stego)
 
 def Authorize(Graph):
+    ## 嘗試是否有建立參照表
     try:
         df = pd.read_csv('RT.csv')
         RT_table = df.to_numpy()
@@ -194,21 +199,26 @@ def Authorize(Graph):
         df.to_csv('RT.csv', index=False, header=True)
         df = pd.read_csv('RT.csv')
         RT_table = df.to_numpy()
+    
+    ## 匯入圖片
     path = "embeding_noise/"+Graph+".png"
-
     I=io.imread(path)
     Stego = I.copy()
     Flag = False
+
+    ## 檢測圖片是否遭到竄改
     detected_error = 0
     diff_pixels = 0
     for i in range(Stego.shape[0]):
-        # if(Flag):
-        #     break
         for j in range(Stego.shape[1]):
+
+            ## 計算灰階值
             Gray = I[i,j,0]*0.299+I[i,j,1]*0.587+I[i,j,2]*0.114
             G_round = round(Gray)
             ac = G_round
+
             flag = False
+            ## 若灰階值大於驗證碼，則查看是否是因為折返導致
             if(ac > RT_table[Stego[i,j,0],Stego[i,j,2]]):
                 ac = abs(int((RT_table[Stego[i,j,0],Stego[i,j,2]] - 0.299*Stego[i,j,0] - 0.114*Stego[i,j,2])/0.587))
                 if(Stego[i,j,1] != ac):
