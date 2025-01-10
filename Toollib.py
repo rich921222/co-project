@@ -76,8 +76,8 @@ def fold(Dec_num,bit):
 
 def perturbed(r,g,a):
     possible = []
-    for i in range(-1*a,a):
-        for j in range(-1*a,a):
+    for i in range(-1*a,a+1):
+        for j in range(-1*a,a+1):
             if(not (r+i < 0 or r+i > 255 or g+j < 0 or g+j > 255)):
                 possible.append([r+i,g+j])
     return np.array(possible)
@@ -249,7 +249,7 @@ def Authorize(Graph):
                 
     io.imshow(Stego, vmin=0, vmax=255)
     io.show()  
-    image1 = io.imread('embeding_noise/'+Graph+'.png')
+    image1 = io.imread("embeding_noise/"+Graph+".png")
     image2 = io.imread('processing_image/'+Graph+'.png')
     
     for i in range(image1.shape[0]):
