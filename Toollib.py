@@ -248,7 +248,8 @@ def Authorize(Graph):
                 Stego[i,j,2] = 0
                 
     io.imshow(Stego, vmin=0, vmax=255)
-    io.show()  
+    io.show()
+    io.imsave('result_image/'+Graph+'.png',Stego)  
     image1 = io.imread("embeding_noise/"+Graph+".png")
     image2 = io.imread('processing_image/'+Graph+'.png')
     
@@ -262,7 +263,7 @@ def Authorize(Graph):
 
     with open("processing_data/"+Graph+".txt","a") as file:
         file.write(f"accuracy: {accuracy}\n")    
-
+    return accuracy
 def embeding(image,n):
     def noise(I,Noise):
         n_r,n_c = Noise.shape[0],Noise.shape[1]
@@ -282,7 +283,6 @@ def embeding(image,n):
     path2 = "noise/"+n+".png"
     I2=io.imread(path2)
     e = noise(I,I2)
-
     io.imshow(e)
     io.show()
     io.imsave('embeding_noise/'+image+'.png',e) 
