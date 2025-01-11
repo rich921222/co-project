@@ -167,23 +167,27 @@ def AVGI(Graph):
             delta = int(Stego[i,j,2]) - int(I[i,j,2])
             X += delta**2
             MSE += delta ** 2
+            ## 累計R或B變化量超過8的數量
+            if(delta > 8):
+                N += 1
             delta = int(Stego[i,j,1]) - int(I[i,j,1])
             X += delta**2
             MSE += delta ** 2 
             delta = int(Stego[i,j,0]) - int(I[i,j,0])
             X += delta**2           
-            MSE += delta ** 2    
-            if(X > 128):
-                N += 1                                    
+            MSE += delta ** 2  
+            if(delta > 8):
+                N += 1                                     
     
     ## 計算PSNR
     MSE /= (Stego.shape[0]*Stego.shape[1]*3)
     PSNR = 10 * np.log10(65025/MSE)
-    print(f"PSNR:{PSNR} , F:{p} , X:{N}")
+    print(f"PSNR:{PSNR} , F:{p} , N:{N}")
 
     with open("processing_data/"+Graph+".txt","w") as file:
         file.write(f"PSNR: {PSNR}\n")
-        file.write(f"outliers: {p}")
+        file.write(f"outliers: {p}\n")
+        file.write(f"The change is more than 8: {N}\n")
 
     io.imshow(Stego)
     io.show()

@@ -10,6 +10,6 @@ import Toollib
 
 
 if __name__ == "__main__":
-    ##Toollib.AVGI('Lena')
+    Toollib.AVGI('Lena')
     Toollib.embeding('Lena', 'firefly')
     Toollib.Authorize('Lena')
