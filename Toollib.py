@@ -44,18 +44,18 @@ def Sudoku(B):
     x = int(np.sqrt(B))
     small_RT = np.array(np.random.choice(range(B), B, replace=False)).reshape(x, x)
     RT = np.zeros((256,256), dtype=int)  
-    offset = True
+    # offset = True
     for i in range(0, 256, x):
-        offset = not offset
+        # offset = not offset
         for j in range(0, 256, x):
-            if(not offset):
-                RT[i:i+x, j:j+x] = small_RT
-            else:
-                if(j == 0):
-                    RT[i:i+x, 0:x>>1] = small_RT[0:x,x>>1:x]
-                    RT[i:i+x, 256-(x>>1):256] = small_RT[0:x,0:x>>1]
-                else:
-                    RT[i:i+x, j-(x>>1):j-(x>>1)+x] = small_RT
+            # if(not offset):
+            RT[i:i+x, j:j+x] = small_RT
+            # else:
+            #     if(j == 0):
+            #         RT[i:i+x, 0:x>>1] = small_RT[0:x,x>>1:x]
+            #         RT[i:i+x, 256-(x>>1):256] = small_RT[0:x,0:x>>1]
+            #     else:
+            #         RT[i:i+x, j-(x>>1):j-(x>>1)+x] = small_RT
                 
     return RT 
 
@@ -122,8 +122,22 @@ def AVGI(Graph):
     Stego = I.copy()
 
     ## 引入參照表(APPM)
-    df = pd.read_csv('RT.csv')
-    RT_table = df.to_numpy()
+    # df = pd.read_csv('RT.csv')
+    # RT_table = df.to_numpy()
+    # NearestP = NearestPoint()
+
+
+    ## 嘗試是否有建立參照表
+    try:
+        df = pd.read_csv('RT.csv')
+        RT_table = df.to_numpy()
+    except:
+        RT = APPM_RT256()
+        df = pd.DataFrame(RT)
+        df.to_csv('RT.csv', index=False, header=True)
+        df = pd.read_csv('RT.csv')
+        RT_table = df.to_numpy()
+
     NearestP = NearestPoint()
 
     p = 0
@@ -173,8 +187,7 @@ def AVGI(Graph):
             delta_G = int(Stego[i,j,1]) - int(I[i,j,1])
             MSE += delta_G ** 2 
 
-            delta_R = int(Stego[i,j,0]) - int(I[i,j,0])
-          
+            delta_R = int(Stego[i,j,0]) - int(I[i,j,0]) 
             MSE += delta_R ** 2  
             if(delta_R**2 > 64 and delta_B**2 <= 64):
                 N += 1   
