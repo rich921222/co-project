@@ -130,7 +130,7 @@ def AVGI(Graph):
     MSE = 0
     F = 0
     N = 0
-    X = 0
+    delta_RB_List = []
 
     for i in range(Stego.shape[0]):
         for j in range(Stego.shape[1]):
@@ -163,21 +163,23 @@ def AVGI(Graph):
             Stego[i,j,1] = g_bar
 
             ## 計算三個通道的變化平方和
-            X = 0
-            delta = int(Stego[i,j,2]) - int(I[i,j,2])
-            X += delta**2
-            MSE += delta ** 2
+
+            delta_B = int(Stego[i,j,2]) - int(I[i,j,2])
+            MSE += delta_B ** 2
             ## 累計R或B變化量超過8的數量
-            if(delta > 8):
+            if(delta_B**2 > 64):
                 N += 1
-            delta = int(Stego[i,j,1]) - int(I[i,j,1])
-            X += delta**2
-            MSE += delta ** 2 
-            delta = int(Stego[i,j,0]) - int(I[i,j,0])
-            X += delta**2           
-            MSE += delta ** 2  
-            if(delta > 8):
-                N += 1                                     
+
+            delta_G = int(Stego[i,j,1]) - int(I[i,j,1])
+            MSE += delta_G ** 2 
+
+            delta_R = int(Stego[i,j,0]) - int(I[i,j,0])
+          
+            MSE += delta_R ** 2  
+            if(delta_R**2 > 64 and delta_B**2 <= 64):
+                N += 1   
+
+            delta_RB_List.append((delta_R, delta_B))                                  
     
     ## 計算PSNR
     MSE /= (Stego.shape[0]*Stego.shape[1]*3)
@@ -192,6 +194,7 @@ def AVGI(Graph):
     io.imshow(Stego)
     io.show()
     io.imsave('processing_image/'+Graph+'.png',Stego)
+    return delta_RB_List
 
 def Authorize(Graph):
     ## 嘗試是否有建立參照表
