@@ -6,6 +6,7 @@ from skimage import io,transform
 from matplotlib import pyplot as plt
 from xxhash import xxh32
 import Toollib
+import pandas as pd
 
 def RB_histogram_Variation_Frequency(delta_RB):
     delta_RB_ravel = delta_RB.ravel()
@@ -27,30 +28,21 @@ def RB_histogram_Variation_Frequency(delta_RB):
     plt.show()
 
 if __name__ == "__main__":
-    delta_RB = Toollib.AVGI('Tiffany')
+    delta_RB = Toollib.AVGI('Baboon')
     delta_RB = np.array(delta_RB)
+    RB_histogram_Variation_Frequency(delta_RB)
 
-    plt.figure(figsize=(6, 6))
-    # 繪製所有點
-    for x, y in delta_RB:
-        plt.scatter(x, y, color='blue')  # 使用 scatter 繪製點
-
-    # 設置 X 和 Y 軸範圍
-    plt.xlim(-15, 15)
-    plt.ylim(-15, 15)
-    # 繪製 (0, 0) 的十字中心
-    plt.axhline(0, color='black', linewidth=0.8)  # 水平線
-    plt.axvline(0, color='black', linewidth=0.8)  # 垂直線
-
-    # 添加標籤和標題
-    plt.xlabel("X-axis")
-    plt.ylabel("Y-axis")
-    plt.title("XY Coordinate Plot with Points")
-
-    # 顯示圖表
-    plt.grid(color='gray', linestyle='--', linewidth=0.5)  # 顯示網格線
-    plt.show()
-
-    Toollib.embeding('Tiffany', 'firefly')
-    Toollib.Authorize('Tiffany')
+    Toollib.embeding('Baboon', 'firefly')
+    Toollib.Authorize('Baboon')
     print(len(delta_RB))
+
+
+    # try:
+    #     df = pd.read_csv('RT.csv')
+    #     RT_table = df.to_numpy()
+    # except:
+    #     RT = Toollib.APPM_RT256()
+    #     df = pd.DataFrame(RT)
+    #     df.to_csv('RT.csv', index=False, header=True)
+    #     df = pd.read_csv('RT.csv')
+    #     RT_table = df.to_numpy()   
