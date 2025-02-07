@@ -1,5 +1,5 @@
 .git*
 __pycache__
-processing_data/*.txt
+processing_data/*
 RT*
 *.ipynb

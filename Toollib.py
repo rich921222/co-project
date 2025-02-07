@@ -327,4 +327,100 @@ def RB_histogram_Variation_Frequency(delta_RB,image):
     plt.savefig(f"Variation-Frequency/{image}_APPM.png")
     # 顯示圖表
     plt.show()
+
+#將處理前後的圖片轉成灰階值
+import os
+import numpy as np
+from skimage import io
+from skimage.color import rgb2gray
+def tranform_to_grayscale():
+    input_dir = 'processing_image'
+    output_dir = 'grayscale_image'
+
+    # Create output directory if it doesn't exist
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    # Process each image
+    for image_name in os.listdir(input_dir):
+        image_path = os.path.join(input_dir, image_name)
+        
+        # Read the image
+        image = io.imread(image_path)
+        
+        # Convert to grayscale
+        gray_image = rgb2gray(image)
+        
+        # Convert to uint8 (0-255)
+        gray_image = (gray_image * 255).astype(np.uint8)
+        
+        # Save the grayscale image
+        gray_image_path = os.path.join(output_dir, image_name)
+        io.imsave(gray_image_path, gray_image)
+
+    print("Grayscale conversion completed.")
     
+    # 定義輸入與輸出目錄
+    input_dir = 'image'
+    output_dir = 'grayscale_image_origin'
+
+    # 確保輸出目錄存在
+    if not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+
+    # 處理每張圖片
+    for image_name in os.listdir(input_dir):
+        image_path = os.path.join(input_dir, image_name)
+        
+        # 讀取影像
+        image = io.imread(image_path)
+        
+        # 轉換為灰階
+        gray_image = rgb2gray(image)
+        
+        # 轉換為 uint8 (0-255)
+        gray_image = (gray_image * 255).astype(np.uint8)
+        
+        # 變更輸出檔案名稱為 PNG
+        image_basename = os.path.splitext(image_name)[0]  # 取得不含副檔名的名稱
+        gray_image_path = os.path.join(output_dir, f"{image_basename}.png")
+
+        # 儲存 PNG 影像
+        io.imsave(gray_image_path, gray_image)
+
+    print("Grayscale TIFF to PNG conversion completed.")
+    
+# 計算更改前後的灰階圖片差異，SSIM是一種計算圖片差異的指標，優於PSNR    
+from skimage.metrics import structural_similarity as ssim
+import pandas as pd
+def cal_difference():
+    # Define directories
+    dir1 = 'grayscale_image'
+    dir2 = 'grayscale_image_origin'
+
+    # Get list of images in both directories
+    image_name = os.listdir(dir1)
+
+    # Initialize a list to store differences
+    differences = []
+
+    # Calculate differences for common images
+    for image_name in image_name:
+        image1_path = os.path.join(dir1, image_name)
+        image2_path = os.path.join(dir2, image_name)
+        
+        # Read the images
+        image1 = io.imread(image1_path)
+        image2 = io.imread(image2_path)
+        
+        # Calculate the difference using SSIM
+        score, diff = ssim(image1, image2, full=True)
+        differences.append((image_name, score))
+
+    # Print the differences
+    for image_name, score in differences:
+        print(f"Image: {image_name}, SSIM: {score}")
+
+    # Optionally, convert differences to a DataFrame and save as CSV
+    differences_df = pd.DataFrame(differences, columns=['Image', 'SSIM'])
+    differences_df.to_csv('image_differences.csv', index=False)

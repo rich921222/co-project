@@ -8,7 +8,7 @@ from xxhash import xxh32
 import Toollib
 import pandas as pd
 
-def RB_histogram_Variation_Frequency(delta_RB):
+def RB_histogram_Variation_Frequency(delta_RB,image):
     delta_RB_ravel = delta_RB.ravel()
     delta_RB_ravel = np.abs(delta_RB_ravel)
     bins = range(0, 16)
@@ -26,15 +26,16 @@ def RB_histogram_Variation_Frequency(delta_RB):
 
     # 顯示圖表
     plt.show()
+    plt.savefig(f'Variation-Frequency/{image}_appm.png')
 
 if __name__ == "__main__":
-    delta_RB = Toollib.AVGI('Baboon')
-    delta_RB = np.array(delta_RB)
-    RB_histogram_Variation_Frequency(delta_RB)
+    delta_RB = Toollib.AVGI('Jet')
+    # delta_RB = np.array(delta_RB)
+    # RB_histogram_Variation_Frequency(delta_RB,'Lena')
 
-    Toollib.embeding('Baboon', 'firefly')
-    Toollib.Authorize('Baboon')
-    print(len(delta_RB))
+    Toollib.embeding('Jet', 'Jet')
+    Toollib.Authorize('Jet')
+    #print(len(delta_RB))
 
 
     # try:
