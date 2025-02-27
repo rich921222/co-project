@@ -392,6 +392,7 @@ def tranform_to_grayscale():
     
 # 計算更改前後的灰階圖片差異，SSIM是一種計算圖片差異的指標，優於PSNR    
 from skimage.metrics import structural_similarity as ssim
+from skimage.metrics import peak_signal_noise_ratio as psnr
 import pandas as pd
 def cal_difference():
     # Define directories
@@ -415,12 +416,13 @@ def cal_difference():
         
         # Calculate the difference using SSIM
         score, diff = ssim(image1, image2, full=True)
-        differences.append((image_name, score))
+        psnr_score = psnr(image1, image2)
+        differences.append((image_name, score, psnr_score))
 
     # Print the differences
-    for image_name, score in differences:
-        print(f"Image: {image_name}, SSIM: {score}")
+    for image_name, score, psnr_score in differences:
+        print(f"Image: {image_name}, SSIM: {score}, PSNR:{psnr_score}")
 
     # Optionally, convert differences to a DataFrame and save as CSV
-    differences_df = pd.DataFrame(differences, columns=['Image', 'SSIM'])
+    differences_df = pd.DataFrame(differences, columns=['Image', 'SSIM', 'PSNR'])
     differences_df.to_csv('image_differences.csv', index=False)
