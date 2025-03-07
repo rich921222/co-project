@@ -1,4 +1,3 @@
 PSNR: 36.0657576372427
 outliers: 257
 The change is more than 8: 6474
-accuracy: 0.9976935749588138
