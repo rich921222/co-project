@@ -19,6 +19,20 @@ def APPM_RT256():
     RT = np.array(RT)
     return RT
 
+def APPM_RT64():
+    RT = []
+    for i in range(256):
+        row = []
+        count = (i*14)%64
+        for j in range(256):
+            row.append(count)
+            count += 1
+            if count >= 64:
+                count -= 64
+        RT.append(row)
+    RT = np.array(RT)
+    return RT
+
 def NearestPoint():
     def distance_from_origin(point):
         x, y = point
@@ -133,7 +147,7 @@ def AVGI(Graph):
         df = pd.read_csv('RT.csv')
         RT_table = df.to_numpy()
     except:
-        RT = Sudoku(256)
+        RT = APPM_RT256()
         df = pd.DataFrame(RT)
         df.to_csv('RT.csv', index=False, header=True)
         df = pd.read_csv('RT.csv')
