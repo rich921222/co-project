@@ -33,6 +33,20 @@ def APPM_RT64():
     RT = np.array(RT)
     return RT
 
+def APPM_RT16():
+    RT = []
+    for i in range(256):
+        row = []
+        count = (i*6)%16
+        for j in range(256):
+            row.append(count)
+            count += 1
+            if count >= 16:
+                count -= 16
+        RT.append(row)
+    RT = np.array(RT)
+    return RT
+
 def NearestPoint():
     def distance_from_origin(point):
         x, y = point
@@ -347,10 +361,9 @@ import os
 import numpy as np
 from skimage import io
 from skimage.color import rgb2gray
-def tranform_to_grayscale():
-    input_dir = 'processing_image'
+def tranform_to_grayscale(input_dir = 'processing_image'):
     output_dir = 'grayscale_image'
-
+    
     # Create output directory if it doesn't exist
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
