@@ -37,6 +37,8 @@ def hong2023_main(img,len_r,len_b):
     new_img = np.zeros((img.shape))
     hey,heyhey=[] , [] 
     hong2023_embedded_num = 0
+    p = 0
+    
     for i in range(img.shape[0]):
         # if i % 50 == 0:
             # print(i)#看進度
@@ -53,12 +55,13 @@ def hong2023_main(img,len_r,len_b):
                     hey.append([i,j])
                     hong2023_embedded_num += (len_r+len_b)
                 else :
+                    p+=1
                     new_img[i][j] = CRS(img[i][j],ii)
                     heyhey.append([i,j])
                     hong2023_embedded_num += 2
     # print('test')
     # print('2023Hong_PSS數量:',len(hey),'CRS數量:',len(heyhey))
-    return  new_img.astype(np.uint8),hong2023_embedded_num,heyhey
+    return  new_img.astype(np.uint8),hong2023_embedded_num,heyhey,p  
 
 #####[Propose主程式]---------
 def propose_main(img,len_r,len_b,alpha):

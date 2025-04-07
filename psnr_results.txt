@@ -1,0 +1,4 @@
+Image: Baboon.tiff, PSNR: 34.72
+Image: house.tiff, PSNR: 34.63
+Image: Jet.tiff, PSNR: 34.81
+Image: Lena.tiff, PSNR: 34.77
