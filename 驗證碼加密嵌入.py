@@ -20,6 +20,26 @@ def APPM_RT256():
     RT = np.array(RT)
     return RT
 
+def Sudoku(B):
+    x = int(np.sqrt(B))
+    small_RT = np.array(np.random.choice(range(B), B, replace=False)).reshape(x, x)
+    sub_small_RT = np.zeros((2,16,8), dtype=int)
+    for i in range(0,2):
+        sub_small_RT[i,:,:] = small_RT[:,i*8:(i+1)*8]
+    RT = np.zeros((256,256), dtype=int)  
+    offset = -1
+    k = 0
+    for i in range(0, 256, x):
+        offset = offset + 1
+        offset = offset % 2
+        k = 0
+        for j in range(0, 256, x//2):
+            RT[i:i+x, j:j+x//2] = sub_small_RT[(offset+k)%2]
+            k += 1
+            k = k % 2
+                
+    return RT 
+
 def NearestPoint():
     def distance_from_origin(point):
         x, y = point
@@ -65,13 +85,13 @@ def AVGI(Graph):
 
     ## 嘗試是否有建立參照表
     try:
-        df = pd.read_csv('RT.csv')
+        df = pd.read_csv('SRM_RT.csv')
         RT_table = df.to_numpy()
     except:
-        RT = APPM_RT256()
+        RT = Sudoku(256)
         df = pd.DataFrame(RT)
-        df.to_csv('RT.csv', index=False, header=True)
-        df = pd.read_csv('RT.csv')
+        df.to_csv('SRM_RT.csv', index=False, header=True)
+        df = pd.read_csv('SRM_RT.csv')
         RT_table = df.to_numpy()
 
     NearestP = NearestPoint()
@@ -179,13 +199,13 @@ def embeding(image,n):
 def Authorize(Graph,I2):
     ## 嘗試是否有建立參照表
     try:
-        df = pd.read_csv('RT.csv')
+        df = pd.read_csv('SRM_RT.csv')
         RT_table = df.to_numpy()
     except:
-        RT = APPM_RT256()
+        RT = Sudoku(256)
         df = pd.DataFrame(RT)
-        df.to_csv('RT.csv', index=False, header=True)
-        df = pd.read_csv('RT.csv')
+        df.to_csv('SRM_RT.csv', index=False, header=True)
+        df = pd.read_csv('SRM_RT.csv')
         RT_table = df.to_numpy()
     
     ## 匯入圖片
