@@ -85,13 +85,13 @@ def AVGI(Graph):
 
     ## 嘗試是否有建立參照表
     try:
-        df = pd.read_csv('SRM_RT.csv')
+        df = pd.read_csv('RT.csv')
         RT_table = df.to_numpy()
     except:
         RT = Sudoku(256)
         df = pd.DataFrame(RT)
-        df.to_csv('SRM_RT.csv', index=False, header=True)
-        df = pd.read_csv('SRM_RT.csv')
+        df.to_csv('RT.csv', index=False, header=True)
+        df = pd.read_csv('RT.csv')
         RT_table = df.to_numpy()
 
     NearestP = NearestPoint()
@@ -218,13 +218,13 @@ def embeding(image,n):
 def Authorize(Graph,I2,extra_bit):
     ## 嘗試是否有建立參照表
     try:
-        df = pd.read_csv('SRM_RT.csv')
+        df = pd.read_csv('RT.csv')
         RT_table = df.to_numpy()
     except:
         RT = Sudoku(256)
         df = pd.DataFrame(RT)
-        df.to_csv('SRM_RT.csv', index=False, header=True)
-        df = pd.read_csv('SRM_RT.csv')
+        df.to_csv('RT.csv', index=False, header=True)
+        df = pd.read_csv('RT.csv')
         RT_table = df.to_numpy()
     
     ## 匯入圖片
