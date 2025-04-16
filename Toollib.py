@@ -89,7 +89,7 @@ def Sudoku(B):
     return RT 
 
 def hashB(npArray,bits):
-    return np.mod(xxh32(npArray).intdigest(), 2**bits)
+    return np.mod(xxh32(npArray.tobytes()).intdigest(), 2**bits)
 
 def fold(Dec_num,bit):
     k = B2D.Dec2Bin(Dec_num)
@@ -150,12 +150,6 @@ def AVGI(Graph):
     I=io.imread(path +r'.tiff')
     Stego = I.copy()
 
-    ## 引入參照表(APPM)
-    # df = pd.read_csv('RT.csv')
-    # RT_table = df.to_numpy()
-    # NearestP = NearestPoint()
-
-
     ## 嘗試是否有建立參照表
     try:
         df = pd.read_csv('RT.csv')
@@ -174,36 +168,57 @@ def AVGI(Graph):
     F = 0
     N = 0
     delta_RB_List = []
+    extra_bit = np.zeros((512,512))
 
     for i in range(Stego.shape[0]):
         for j in range(Stego.shape[1]):
             
-            ## 計算灰階值並將其設為驗證碼(ac)
+            ## 計算灰階值並將其設為驗證碼
             Gray = I[i,j,0]*0.299+I[i,j,1]*0.587+I[i,j,2]*0.114
             G_round = round(Gray)
-            ac = G_round    
+            ## 使用灰階值+索引做驗證碼(AC)
+            ac = hashB(np.array([G_round,i,j]),8)    
+            ac2 = hashB(np.array([G_round,i,j,32]),8) 
             
             ## 由參照表中依照順序(最近優先)尋找數值等於ac的點，並回傳其XY軸座標 -> k
-            k = Find(RT_table,NearestP,Stego[i,j,0],Stego[i,j,2],ac)          
+            k = Find(RT_table,NearestP,Stego[i,j,0],Stego[i,j,2],ac)   
+            k2 =  Find(RT_table,NearestP,Stego[i,j,0],Stego[i,j,2],ac2)         
 
             ## X座標放入紅色通道，Y座標放入藍色通道，並判斷綠色通道要變化成多少彌補灰階值 -> g_bar
-            Stego[i,j,0] = k[0]
-            Stego[i,j,2] = k[1]  
             g_bar = int((Gray - 0.299*k[0] - 0.114*k[1])/0.587)
+            g_bar2 = int((Gray - 0.299*k2[0] - 0.114*k2[1])/0.587)
             if(round(0.299*k[0]+0.587*g_bar+0.114*k[1]) < round(Gray)):
                 g_bar += 1
             elif(round(0.299*k[0]+0.587*g_bar+0.114*k[1]) > round(Gray)):
                 g_bar -= 1
 
+            if(round(0.299*k2[0]+0.587*g_bar2+0.114*k2[1]) < round(Gray)):
+                g_bar2 += 1
+            elif(round(0.299*k2[0]+0.587*g_bar2+0.114*k2[1]) > round(Gray)):
+                g_bar2 -= 1
+
             ## 若g_bar超過臨界值則進行折返
             if(g_bar > 255):
                 p += 1
-                g_bar = 510 - abs(int((G_round - 0.299*k[0] - 0.114*k[1])/0.587))
+                g_bar = 510 - g_bar
             elif(g_bar < 0):
                 p += 1
-                g_bar = abs(int((G_round - 0.299*k[0] - 0.114*k[1])/0.587))
-                
-            Stego[i,j,1] = g_bar
+                g_bar = g_bar*-1
+            
+            if(g_bar2 > 255):
+                g_bar2 = 510 - g_bar2
+            elif(g_bar2 < 0):
+                g_bar2 = g_bar2*-1
+            
+            if(((k[0]-Stego[i,j,0])**2+(k[1]-Stego[i,j,2])**2+(g_bar-Stego[i,j,1])**2)<((k2[0]-Stego[i,j,0])**2+(k2[1]-Stego[i,j,2])**2+(g_bar2-Stego[i,j,1])**2)):
+                Stego[i,j,0] = k[0]
+                Stego[i,j,2] = k[1]              
+                Stego[i,j,1] = g_bar
+            else:
+                extra_bit[i,j] = 1
+                Stego[i,j,0] = k2[0]
+                Stego[i,j,2] = k2[1]              
+                Stego[i,j,1] = g_bar2     
 
             ## 計算三個通道的變化平方和
 
@@ -226,7 +241,7 @@ def AVGI(Graph):
     ## 計算PSNR
     MSE /= (Stego.shape[0]*Stego.shape[1]*3)
     PSNR = 10 * np.log10(65025/MSE)
-    print(f"PSNR:{PSNR} , F:{p} , N:{N}")
+    print(f"PSNR:{PSNR} , 折返的Green:{p} , R或B變化量大於8:{N}")
 
     with open("processing_data/"+Graph+".txt","w") as file:
         file.write(f"PSNR: {PSNR}\n")
@@ -236,9 +251,9 @@ def AVGI(Graph):
     io.imshow(Stego)
     io.show()
     io.imsave('processing_image/'+Graph+'.png',Stego)
-    return delta_RB_List
+    return delta_RB_List,extra_bit
 
-def Authorize(Graph):
+def Authorize(Graph,extra_bit):
     ## 嘗試是否有建立參照表
     try:
         df = pd.read_csv('RT.csv')
@@ -265,13 +280,24 @@ def Authorize(Graph):
             ## 計算灰階值
             Gray = I[i,j,0]*0.299+I[i,j,1]*0.587+I[i,j,2]*0.114
             G_round = round(Gray)
-            ac = G_round
+            if(extra_bit[i,j] == 0):
+                ac =  hashB(np.array([G_round,i,j]),8)
+            else:
+                ac =  hashB(np.array([G_round,i,j,32]),8)
 
             flag = False
             ## 若灰階值大於驗證碼，則查看是否是因為折返導致
-            if(ac > RT_table[Stego[i,j,0],Stego[i,j,2]]):
-                ac = abs(int((RT_table[Stego[i,j,0],Stego[i,j,2]] - 0.299*Stego[i,j,0] - 0.114*Stego[i,j,2])/0.587))
-                if(Stego[i,j,1] != ac):
+            if(ac != RT_table[Stego[i,j,0],Stego[i,j,2]]):
+                if(I[i,j,1] > 128):
+                    Gray = I[i,j,0]*0.299+(510-I[i,j,1])*0.587+I[i,j,2]*0.114
+                else:
+                    Gray = I[i,j,0]*0.299+(-1*I[i,j,1])*0.587+I[i,j,2]*0.114
+                G_round = round(Gray)
+                if(extra_bit[i,j] == 0):
+                    ac =  hashB(np.array([G_round,i,j]),8)
+                else:
+                    ac =  hashB(np.array([G_round,i,j,32]),8)
+                if(ac != RT_table[Stego[i,j,0],Stego[i,j,2]]):
                     Stego[i,j,0] = 255
                     Stego[i,j,1] = 255
                     Stego[i,j,2] = 255
@@ -280,17 +306,6 @@ def Authorize(Graph):
                     # print(f"This picture is tampered. i: {i} ,j: {j} ,Stego:{Stego[i,j]} ,Gray:{Gray}, RT_table:{RT_table[Stego[i,j,0],Stego[i,j,2]]}")
                     # Flag = True
                     # break 
-            elif(ac < RT_table[Stego[i,j,0],Stego[i,j,2]]):
-                ac = 510 - abs(int((RT_table[Stego[i,j,0],Stego[i,j,2]] - 0.299*Stego[i,j,0] - 0.114*Stego[i,j,2])/0.587))
-                if(Stego[i,j,1] != ac):                
-                    Stego[i,j,0] = 255
-                    Stego[i,j,1] = 255
-                    Stego[i,j,2] = 255
-                    flag = True
-                    detected_error += 1
-                    # print(f"This picture is tampered. i: {i} ,j: {j} ,Stego:{Stego[i,j]} ,Gray:{Gray}, RT_table:{RT_table[Stego[i,j,0],Stego[i,j,2]]}")
-                    # Flag = True
-                    # break  
             if(not flag):
                 Stego[i,j,0] = 0
                 Stego[i,j,1] = 0
@@ -306,7 +321,7 @@ def Authorize(Graph):
         for j in range(image1.shape[1]):
             if(image1[i,j] != image2[i,j]).any():
                diff_pixels+=1 
-    print(Graph)
+    # print(Graph)
     accuracy = detected_error/diff_pixels
     print(f"Detected error: {detected_error}, Actual error: {diff_pixels}, Accuracy: {accuracy}")
 

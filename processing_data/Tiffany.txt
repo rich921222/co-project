@@ -1,3 +1,4 @@
-PSNR: 33.168796187678126
-outliers: 20310
-The change is more than 8: 97648
+PSNR: 36.3221057317452
+outliers: 19846
+The change is more than 8: 25636
+accuracy: 0.9924120781527531
