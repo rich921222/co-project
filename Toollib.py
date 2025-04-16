@@ -248,8 +248,8 @@ def AVGI(Graph):
         file.write(f"outliers: {p}\n")
         file.write(f"The change is more than 8: {N}\n")
 
-    io.imshow(Stego)
-    io.show()
+    # io.imshow(Stego)
+    # io.show()
     io.imsave('processing_image/'+Graph+'.png',Stego)
     return delta_RB_List,extra_bit
 
@@ -311,8 +311,8 @@ def Authorize(Graph,extra_bit):
                 Stego[i,j,1] = 0
                 Stego[i,j,2] = 0
                 
-    io.imshow(Stego, vmin=0, vmax=255)
-    io.show()
+    # io.imshow(Stego, vmin=0, vmax=255)
+    # io.show()
     io.imsave('result_image/'+Graph+'.png',Stego)  
     image1 = io.imread("embeding_noise/"+Graph+".png")
     image2 = io.imread('processing_image/'+Graph+'.png')
@@ -347,8 +347,8 @@ def embeding(image,n):
     path2 = "noise/"+n+".png"
     I2=io.imread(path2)
     e = noise(I,I2)
-    io.imshow(e)
-    io.show()
+    # io.imshow(e)
+    # io.show()
     io.imsave('embeding_noise/'+image+'.png',e) 
     
 def RB_histogram_Variation_Frequency(delta_RB,image):
