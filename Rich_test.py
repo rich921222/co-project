@@ -1,8 +1,9 @@
 import Toollib
 import numpy as np
+import os
 
 
-images = ["Lena","Tiffany"]
+images = [os.path.splitext(path)[0] for path in os.listdir('image')]
 noise = ["Lena","Tiffany"]
 
 for i in images:

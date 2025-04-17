@@ -169,8 +169,8 @@ def AVGI(Graph):
     PSNR = 10 * np.log10(65025/MSE)
     print(f"PSNR:{PSNR} , F:{p} , N:{N}")
 
-    io.imshow(Stego)
-    io.show()
+    # io.imshow(Stego)
+    # io.show()
 
     return delta_RB_List,Stego,extra_bit
 
@@ -190,7 +190,7 @@ def RB_histogram_Variation_Frequency(delta_RB,image):
     plt.title("APPM")
 
     # 顯示圖表
-    plt.show()
+    #plt.show()
     plt.savefig(f'Variation-Frequency/{image}_appm.png')
 
 def embeding(image,n):
@@ -288,9 +288,14 @@ def Authorize(Graph,I2,extra_bit):
  
     return accuracy
 
+import os
+import Toollib
+
 if __name__ == "__main__":
-    delta_RB,Stego,extra_bit = AVGI('Sailboat')
-    delta_RB = np.array(delta_RB)
-    RB_histogram_Variation_Frequency(delta_RB,'Sailboat')    
-    errorimage = embeding(Stego, 'wave')
-    Authorize(errorimage,Stego,extra_bit)
+    namelist = [os.path.splitext(f)[0] for f in os.listdir('image')]
+    for name in namelist:
+        delta_RB,Stego,extra_bit = AVGI(name)
+        delta_RB = np.array(delta_RB)
+        Toollib.RB_histogram_Variation_Frequency(delta_RB,name)    
+        # errorimage = embeding(Stego, 'wave')
+        # Authorize(errorimage,Stego,extra_bit)
