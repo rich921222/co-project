@@ -288,9 +288,9 @@ def Authorize(Graph,extra_bit):
             flag = False
             ## 若灰階值大於驗證碼，則查看是否是因為折返導致
             if(ac != RT_table[Stego[i,j,0],Stego[i,j,2]]):
-                if(I[i,j,1] > 128):
+                if(I[i,j,1] > 240):
                     Gray = I[i,j,0]*0.299+(510-I[i,j,1])*0.587+I[i,j,2]*0.114
-                else:
+                elif(I[i,j,1] < 15):
                     Gray = I[i,j,0]*0.299+(-1*I[i,j,1])*0.587+I[i,j,2]*0.114
                 G_round = round(Gray)
                 if(extra_bit[i,j] == 0):
