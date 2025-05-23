@@ -85,7 +85,7 @@ def AVGI(Graph):
 
     ## 嘗試是否有建立參照表
     try:
-        df = pd.read_csv('RT.csv')
+        df = pd.read_csv('SRM_RT.csv')
         RT_table = df.to_numpy()
     except:
         RT = Sudoku(256)
