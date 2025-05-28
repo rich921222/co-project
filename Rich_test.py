@@ -5,8 +5,8 @@ import cv2
 import matplotlib.pyplot as plt
 
 # images = [os.path.splitext(path)[0] for path in os.listdir('image')]
-images = ["Tiffany"]
-noise = ["Tiffany"]
+images = ["Lena"]
+noise = ["Lena"]
 
 for i in images:
     delta_RB,extra_bit = Toollib.AVGI(i) 

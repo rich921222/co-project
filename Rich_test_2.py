@@ -218,7 +218,7 @@ def embeding(image,n):
 def Authorize(Graph,I2,extra_bit):
     ## 嘗試是否有建立參照表
     try:
-        df = pd.read_csv('RT.csv')
+        df = pd.read_csv('SRM_RT.csv')
         RT_table = df.to_numpy()
     except:
         RT = Sudoku(256)
@@ -250,9 +250,9 @@ def Authorize(Graph,I2,extra_bit):
             flag = False
             ## 若灰階值大於驗證碼，則查看是否是因為折返導致
             if(ac != RT_table[Stego[i,j,0],Stego[i,j,2]]):
-                if(I[i,j,1] > 128):
+                if(I[i,j,1] > 240):
                     Gray = I[i,j,0]*0.299+(510-I[i,j,1])*0.587+I[i,j,2]*0.114
-                else:
+                elif(I[i,j,1] < 15):
                     Gray = I[i,j,0]*0.299+(-1*I[i,j,1])*0.587+I[i,j,2]*0.114
                 G_round = round(Gray)
                 if(extra_bit[i,j] == 0):
@@ -292,10 +292,11 @@ import os
 import Toollib
 
 if __name__ == "__main__":
-    namelist = [os.path.splitext(f)[0] for f in os.listdir('image')]
+    # namelist = [os.path.splitext(f)[0] for f in os.listdir('image')]
+    namelist = ['Tiffany']
     for name in namelist:
         delta_RB,Stego,extra_bit = AVGI(name)
         delta_RB = np.array(delta_RB)
         Toollib.RB_histogram_Variation_Frequency(delta_RB,name)    
-        # errorimage = embeding(Stego, 'wave')
-        # Authorize(errorimage,Stego,extra_bit)
+        errorimage = embeding(Stego, 'wave')
+        Authorize(errorimage,Stego,extra_bit)
